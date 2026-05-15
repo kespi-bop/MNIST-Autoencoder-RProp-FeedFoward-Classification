@@ -1,2 +1,26 @@
 # MNIST-Autoencoder-RProp-Analysis
-MNIST classification study using k-autoencoders for feature extraction. Features a custom Batch RProp implementation, sigmoid-based neural networks, and a performance analysis across different latent space dimensions (m1-m5).
+
+This repository explores the impact of dimensionality reduction on handwritten digit classification (MNIST) by comparing multiple **Autoencoder** architectures and utilizing the **Resilient Backpropagation (RProp)** algorithm for weight updates.
+
+## 📌 Project Overview
+The core objective is to analyze how the size of the latent representation ($m_h$) affects learning dynamics and final classification accuracy. The project implements $k=5$ independent Autoencoders, each with a single hidden layer of size $m_h \in \{25, 50, 75, 100, 125\}$.
+
+The latent features extracted by these encoders ($E_h$) serve as inputs for a neural classifier with sigmoid activation functions, trained using **Batch RProp**.
+
+## 🛠️ Technical Specifications
+*   **Dataset:** MNIST (N input–label pairs, split into ≥10,000 training and ≥2,500 test samples).
+*   **Feature Extraction:** $k$ single-hidden-layer Autoencoders.
+*   **Classifier:** Single-hidden-layer Neural Network with Sigmoid activations.
+*   **Optimization:** Resilient Backpropagation (RProp) in strict **Batch Mode**.
+*   **Metrics:** Evaluation of convergence speed (epochs) and top-1 accuracy on the test set.
+
+## 📊 Learning Dynamics Analysis
+The project evaluates performance across five different latent space dimensions:
+
+| Model | Latent Size ($m_h$) | Epochs to Converge | Test Accuracy |
+| :--- | :---: | :---: | :---: |
+| Encoder 1 | 25 | - | - |
+| Encoder 2 | 50 | - | - |
+| Encoder 3 | 75 | - | - |
+| Encoder 4 | 100 | - | - |
+| Encoder 5 | 125 | - | - |
