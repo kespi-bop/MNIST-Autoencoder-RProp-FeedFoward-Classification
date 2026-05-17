@@ -16,13 +16,19 @@ uint32_t reverseInt(uint32_t i) {
 int main() {
     // Extracted MNIST filename
     std::string filename = "../MNIST/training set/train-images.idx3-ubyte";
+    std::string labels_filename = "../MNIST/training set/train-labels.idx1-ubyte";
     
     // Open file in binary mode
     std::ifstream file(filename, std::ios::binary);
+    std::ifstream labels_file(labels_filename, std::ios::binary);
     
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file '" << filename << "'." << std::endl;
         std::cerr << "Make sure it is extracted and in the same folder as the executable." << std::endl;
+        return 1;
+    }
+    if (!labels_file.is_open()) {
+        std::cerr << "Error: Unable to open file '" << labels_filename << "'." << std::endl;
         return 1;
     }
 
@@ -38,11 +44,19 @@ int main() {
     file.read((char*)&n_rows, sizeof(n_rows));
     file.read((char*)&n_cols, sizeof(n_cols));
 
+    uint32_t labels_magic_number = 0;
+    uint32_t number_of_labels = 0;
+    labels_file.read((char*)&labels_magic_number, sizeof(labels_magic_number));
+    labels_file.read((char*)&number_of_labels, sizeof(number_of_labels));
+
     // Convert values from MNIST endianness to CPU endianness
     magic_number = reverseInt(magic_number);
     number_of_images = reverseInt(number_of_images);
     n_rows = reverseInt(n_rows);
     n_cols = reverseInt(n_cols);
+
+    labels_magic_number = reverseInt(labels_magic_number);
+    number_of_labels = reverseInt(number_of_labels);
 
     // Security check on Magic Number (for MNIST images it must be 2051)
     if (magic_number != 2051) {
@@ -64,7 +78,12 @@ int main() {
     for(int i=0; i < 10; i++){
         // Read the bytes of the image
         file.read((char*)image.data(), image_size);
-        std::cout << "Displaying image number: " << i << " (ASCII Art):" << std::endl;
+        
+        // Read the label
+        unsigned char label;
+        labels_file.read((char*)&label, 1);
+        
+        std::cout << "Displaying image number: " << i << " - Label: " << (int)label << " (ASCII Art):" << std::endl;
         
         // Loop to print the 28x28 matrix on the terminal
         for (size_t r = 0; r < n_rows; ++r) {
@@ -83,8 +102,9 @@ int main() {
             std::cout << std::endl; // New row of pixels
         }
     }
-    // Close the file
+    // Close the files
     file.close();
+    labels_file.close();
 
     return 0;
 }

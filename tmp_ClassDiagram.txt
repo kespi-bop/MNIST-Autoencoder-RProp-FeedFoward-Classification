@@ -1,0 +1,87 @@
+classDiagram
+    class MNISTReader {
+        +readImages(filePath: string, limit: int) vector~vector~float~~
+        +readLabels(filePath: string, limit: int) vector~int~
+    }
+
+    class Dataset {
+        +trainingImages: vector~vector~float~~
+        +trainingLabels: vector~int~
+        +testImages: vector~vector~float~~
+        +testLabels: vector~int~
+        +normalize() void
+    }
+
+    %% Interfaccia per la strategia di attivazione
+    class ActivationFunction {
+        <<abstract>>
+        +forward(input: vector~float~) vector~float~*
+        +derivative(input: vector~float~, output_gradient: vector~float~) vector~float~*
+    }
+
+    class SigmoidActivation {
+        +forward(input: vector~float~) vector~float~
+        +derivative(input: vector~float~, output_gradient: vector~float~) vector~float~
+    }
+
+    class SoftmaxActivation {
+        +forward(input: vector~float~) vector~float~
+        +derivative(input: vector~float~, output_gradient: vector~float~) vector~float~
+    }
+
+    %% Layer diventa una classe concreta che CONTIENE l'attivazione
+    class Layer {
+        #weights: vector~vector~float~~
+        #biases: vector~float~
+        #d_weights: vector~vector~float~~
+        #d_biases: vector~float~
+        -activation: ActivationFunction*
+        +forward(input: vector~float~) vector~float~
+        +backward(output_gradient: vector~float~) vector~float~
+        +zeroGrad() void
+        +getWeights() vector~vector~float~~&
+        +getBiases() vector~float~&
+    }
+
+    class NeuralNetwork {
+        <<abstract>>
+        #layers: vector~Layer*~
+        +forward(input: vector~float~) vector~float~
+        +backward(target: vector~float~) void
+        +zeroGrad() void
+        +getLayers() vector~Layer*~
+    }
+
+    class Autoencoder {
+        +encode(x: vector~float~) vector~float~
+        +decode(h: vector~float~) vector~float~
+    }
+
+    class MLPClassifier {
+        +predict(x: vector~float~) int
+    }
+
+    class RPropWeightUpdater {
+        -eta_plus: float
+        -eta_minus: float
+        -steps_w: vector~vector~vector~float~~~
+        -steps_b: vector~vector~float~~
+        -prev_grad_w: vector~vector~vector~float~~~
+        -prev_grad_b: vector~vector~float~~
+        +update(network: NeuralNetwork*) void
+    }
+
+    %% Relazioni e Dipendenze
+    Dataset ..> MNISTReader : "Is populated by"
+    NeuralNetwork ..> Dataset : "Is fed by"
+    
+    %% Aggregazione dell'attivazione nel Layer
+    Layer *-- ActivationFunction : "Contains (Composition)"
+    ActivationFunction <|-- SigmoidActivation : "Implement"
+    ActivationFunction <|-- SoftmaxActivation : "Implement"
+    
+    NeuralNetwork *-- Layer : "Composition (Contains 1..*)"
+    NeuralNetwork <|-- Autoencoder : "Inherit"
+    NeuralNetwork <|-- MLPClassifier : "Inherit"
+    
+    RPropWeightUpdater ..> NeuralNetwork : "Update weights of" 
