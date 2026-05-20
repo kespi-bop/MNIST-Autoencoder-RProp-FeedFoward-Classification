@@ -1,16 +1,24 @@
 classDiagram
-    class MNISTReader {
-        +readImages(filePath: string, limit: int) vector~vector~float~~
-        +readLabels(filePath: string, limit: int) vector~int~
+class MNISTReader {
+        +readImages(filePath: string, limit: int) static vector~vector~float~~
+        +readLabels(filePath: string, limit: int) static vector~int~
+        -reverseInt(i: uint32_t): static uint32_t
     }
 
     class Dataset {
-        +trainingImages: vector~vector~float~~
-        +trainingLabels: vector~int~
-        +testImages: vector~vector~float~~
-        +testLabels: vector~int~
-        +normalize() void
+        -trainingImages: vector~vector~uint8_t~~
+        -trainingLabels: vector~int~
+        -testImages: vector~vector~uint8_t~~
+        -testLabels: vector~int~
+        -normalizedTrainingImages: vector~vector~float~~
+        -normalizeImages(trainingImages: const vector~vector~uint8_t~~) void
+        +getTrainingImages() const vector~vector~uint8_t~~
+        +getTrainingLabels() const vector~uint8_t~
+        +getTestImages() const vector~vector~uint8_t~~
+        +getTestLabels() const vector~uint8_t~
+        +getNormalizedTrainingImages() const vector~vector~float~~
     }
+
 
     %% Interfaccia per la strategia di attivazione
     class ActivationFunction {
