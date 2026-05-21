@@ -33,14 +33,14 @@ void MNISTReader::readHeader(std::ifstream& file, uint32_t& magic_number, uint32
 std::vector<std::vector<uint8_t>> MNISTReader::readImages(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-        throw std::runtime_error("Errore: Impossibile aprire il file delle immagini " + filename);
+        throw std::runtime_error("Error: Unable to open image file " + filename);
     }
 
     uint32_t magic_number, number_of_images;
     readHeader(file, magic_number, number_of_images);
 
     if (magic_number != 2051) {
-        throw std::runtime_error("Errore: Magic number non valido per le immagini in " + filename);
+        throw std::runtime_error("Error: Invalid magic number for images in " + filename);
     }
 
     uint32_t n_rows = 0;
@@ -80,14 +80,14 @@ std::vector<std::vector<uint8_t>> MNISTReader::readImages(const std::string& fil
 std::vector<uint8_t> MNISTReader::readLabels(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-        throw std::runtime_error("Errore: Impossibile aprire il file delle label " + filename);
+        throw std::runtime_error("Error: Unable to open label file " + filename);
     }
 
     uint32_t magic_number, number_of_items;
     readHeader(file, magic_number, number_of_items);
 
     if (magic_number != 2049) {
-        throw std::runtime_error("Errore: Magic number non valido per le label in " + filename);
+        throw std::runtime_error("Error: Invalid magic number for labels in " + filename);
     }
 
     std::vector<uint8_t> labels(number_of_items);

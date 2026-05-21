@@ -6,17 +6,20 @@ class MNISTReader {
     }
 
     class Dataset {
-        -trainingImages: vector~vector~uint8_t~~
-        -trainingLabels: vector~int~
-        -testImages: vector~vector~uint8_t~~
-        -testLabels: vector~int~
-        -normalizedTrainingImages: vector~vector~float~~
-        -normalizeImages(trainingImages: const vector~vector~uint8_t~~) void
-        +getTrainingImages() const vector~vector~uint8_t~~
-        +getTrainingLabels() const vector~uint8_t~
-        +getTestImages() const vector~vector~uint8_t~~
-        +getTestLabels() const vector~uint8_t~
-        +getNormalizedTrainingImages() const vector~vector~float~~
+        -fullTrainingSetImages: vector~Eigen::VectorXf~
+        -fullTrainingSetLabels: vector~Eigen::VectorXf~
+        -testSetImages: vector~Eigen::VectorXf~
+        -testSetLabels: vector~Eigen::VectorXf~
+        -trainingSet: vector~pair~Eigen::VectorXf,Eigen::VectorXf~~
+        -validationSet: vector~pair~Eigen::VectorXf,Eigen::VectorXf~~
+        -testSet: vector~pair~Eigen::VectorXf,Eigen::VectorXf~~
+        -normalizeImages(imagesToNormalize: const vector~vector~uint8_t~~) vector~Eigen::VectorXf~
+        -oneHotEncodeLabels(labelsToEncode: const vector~uint8_t~) vector~Eigen::VectorXf~
+        -splitDataset() void
+        -verifyDimensions() void
+        +getTrainingSet() const vector~pair~Eigen::VectorXf,Eigen::VectorXf~~&
+        +getValidationSet() const vector~pair~Eigen::VectorXf,Eigen::VectorXf~~&
+        +getTestSet() const vector~pair~Eigen::VectorXf,Eigen::VectorXf~~&
     }
 
 

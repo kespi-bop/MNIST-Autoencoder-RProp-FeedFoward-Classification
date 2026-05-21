@@ -1,4 +1,4 @@
-#include "printTest.cpp"
+#include "printTest.hpp"
 
 int main() {
     
