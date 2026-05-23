@@ -1,9 +1,9 @@
 #include "Autoencoder.hpp"
 #include "ActivationFunctions.hpp"
+#include "LossFunctions.hpp"
 #include <cmath>
 
 Autoencoder::Autoencoder(const size_t inputSize, const size_t hiddenSize)
-    : inputSize(inputSize), hiddenSize(hiddenSize)
 {
     layers.reserve(2);
     layers.push_back(Layer(hiddenSize, hiddenSize, inputSize, Activation::ReLU));
@@ -19,11 +19,12 @@ Autoencoder::Autoencoder(const size_t inputSize, const size_t hiddenSize)
 }
 
 Eigen::VectorXf Autoencoder::encode(const Eigen::VectorXf& input){
-    return ActivationFunctions::apply(layers[0].getActivation(), layers[0].W() * input + layers[0].b());
+
+    return layers[0].forward(input);
 }
 
 Eigen::VectorXf Autoencoder::decode(const Eigen::VectorXf& encoded){
-    return ActivationFunctions::apply(layers[1].getActivation(), layers[1].W() * encoded + layers[1].b());
+    return layers[1].forward(encoded);
 }
 
 Eigen::VectorXf Autoencoder::forward(const Eigen::VectorXf& x){
@@ -31,6 +32,12 @@ Eigen::VectorXf Autoencoder::forward(const Eigen::VectorXf& x){
     return decode(hidden);
 }
 
-Eigen::VectorXf Autoencoder::backward(const Eigen::VectorXf& lossGradient){
-    return lossGradient;
+void Autoencoder::backward(Eigen::VectorXf& delta){
+    for(int i = layers.size() - 1; i >= 0; i--) {
+        if(i == layers.size() - 1) {
+            delta = layers[i].backward(delta);     
+        } else {
+            delta = layers[i].backward(delta);
+        }
+    }
 }

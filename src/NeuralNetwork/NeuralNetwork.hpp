@@ -16,7 +16,7 @@ public:
 
     // Pure virtual methods: the core algorithm is delegated to derived classes
     virtual Eigen::VectorXf forward(const Eigen::VectorXf& input) = 0;
-    virtual Eigen::VectorXf backward(const Eigen::VectorXf& lossGradient) = 0;
+    virtual void backward(Eigen::VectorXf& lossGradient) = 0;
 
     // --- CONCRETE METHODS (inherited by all subclasses) ---
 
