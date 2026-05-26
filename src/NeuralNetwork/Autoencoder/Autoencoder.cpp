@@ -1,43 +1,37 @@
 #include "Autoencoder.hpp"
-#include "ActivationFunctions.hpp"
-#include "LossFunctions.hpp"
-#include <cmath>
 
-Autoencoder::Autoencoder(const size_t inputSize, const size_t hiddenSize)
+Autoencoder::Autoencoder(size_t inputSize, size_t hiddenSize)
 {
     layers.reserve(2);
-    layers.push_back(Layer(hiddenSize, hiddenSize, inputSize, Activation::ReLU));
-    layers.push_back(Layer(inputSize, inputSize, hiddenSize, Activation::Sigmoid));
-
-
-    // TODO: replace with Xavier initialization
-    layers[0].W() = Eigen::MatrixXf::Random(hiddenSize, inputSize);
-    layers[0].b() = Eigen::VectorXf::Zero(hiddenSize);
-
-    layers[1].W() = Eigen::MatrixXf::Random(inputSize, hiddenSize);
-    layers[1].b() = Eigen::VectorXf::Zero(inputSize);
+    layers.emplace_back(hiddenSize, hiddenSize, inputSize, Activation::ReLU);
+    layers.emplace_back(inputSize, inputSize, hiddenSize, Activation::Sigmoid);
+    // Layer constructor already applies Xavier uniform initialization — no need to overwrite
 }
 
-Eigen::VectorXf Autoencoder::encode(const Eigen::VectorXf& input){
-
+Eigen::VectorXf Autoencoder::encode(const Eigen::VectorXf& input) {
     return layers[0].forward(input);
 }
 
-Eigen::VectorXf Autoencoder::decode(const Eigen::VectorXf& encoded){
+Eigen::VectorXf Autoencoder::decode(const Eigen::VectorXf& encoded) {
     return layers[1].forward(encoded);
 }
 
-Eigen::VectorXf Autoencoder::forward(const Eigen::VectorXf& x){
-    hidden = encode(x);
-    return decode(hidden);
+Eigen::VectorXf Autoencoder::forward(const Eigen::VectorXf& x) {
+    return decode(encode(x));
 }
 
-void Autoencoder::backward(Eigen::VectorXf& delta){
-    for(int i = layers.size() - 1; i >= 0; i--) {
-        if(i == layers.size() - 1) {
-            delta = layers[i].backward(delta);     
+void Autoencoder::backward(Eigen::VectorXf& delta) {
+    for (int i = static_cast<int>(layers.size()) - 1; i >= 0; i--) {
+        if (i == static_cast<int>(layers.size()) - 1) {
+            delta = layers[i].backwardOutput(delta);  
         } else {
             delta = layers[i].backward(delta);
         }
+    }
+}
+
+void Autoencoder::updateWeights(float learningRate) {
+    for (size_t i = 0; i < layers.size(); i++) {
+        layers[i].updateWeights(learningRate);
     }
 }

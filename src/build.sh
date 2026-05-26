@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Compile all source files with include paths for each module subdirectory
-g++ -fsanitize=address \
+g++ -O3 -march=native \
     -I /usr/include/eigen3 \
     -I Dataset \
     -I MNISTReader \
@@ -23,4 +23,3 @@ g++ -fsanitize=address \
     NeuralNetwork/Autoencoder/Autoencoder.cpp \
     Trainer/Trainer.cpp \
     Trainer/LossFunction/LossFunctions/LossFunctions.cpp \
-    -o mnist_viewer

@@ -30,6 +30,8 @@ public:
     // Single layer accessor by index (uses .at() for bounds checking)
     Layer& getLayer(size_t index) { return layers.at(index); }
     const Layer& getLayer(size_t index) const { return layers.at(index); }
+
+    virtual void updateWeights(float learningRate) = 0;
 };
 
 #endif // NEURALNETWORK_HPP

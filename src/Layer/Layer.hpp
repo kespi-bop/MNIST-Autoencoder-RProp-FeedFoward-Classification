@@ -1,5 +1,4 @@
-#ifndef LAYER_HPP
-#define LAYER_HPP
+#pragma once
 
 #include <Eigen/Dense>
 #include <vector>
@@ -11,12 +10,18 @@ private:
     Eigen::MatrixXf weight;
     Eigen::VectorXf bias;
 
-    Eigen::MatrixXf d_weight = Eigen::MatrixXf::Zero(0, 0);
-    Eigen::VectorXf d_bias = Eigen::VectorXf::Zero(0);
+    Eigen::MatrixXf d_weight;       // gradient accumulator for weights
+    Eigen::VectorXf d_bias;         // gradient accumulator for biases
+
+    Eigen::MatrixXf prev_d_weight;  // previous epoch gradient (for RProp)
+    Eigen::VectorXf prev_d_bias;
+
+    Eigen::MatrixXf delta_weight;   // RProp step size per weight
+    Eigen::VectorXf delta_bias;     // RProp step size per bias
 
     Eigen::VectorXf lastInput;
-    Eigen::VectorXf z;
     Eigen::VectorXf a;
+    Eigen::VectorXf z;
 
     size_t weightRows;
     size_t weightCols;
@@ -25,8 +30,9 @@ private:
     Activation activation;
 
 public:
+
     // Constructor that allocates space for weights, biases, and assigns the activation function
-    Layer(const size_t biasSize, const size_t weightRows, const size_t weightCols, Activation activationFunction);
+    Layer(size_t biasSize, size_t weightRows, size_t weightCols, Activation activationFunction);
 
     // Weight matrix accessor
     Eigen::MatrixXf& W() { return weight; }
@@ -44,13 +50,13 @@ public:
     Eigen::VectorXf& db() { return d_bias; }
     const Eigen::VectorXf& db() const { return d_bias; }
 
-    // z accessor
-    Eigen::VectorXf& getZ() { return z; }
-    const Eigen::VectorXf& getZ() const { return z; }
-
-    // a accessor
+    // Pre-activation accessor (a = W*x + b)
     Eigen::VectorXf& getA() { return a; }
     const Eigen::VectorXf& getA() const { return a; }
+
+    // Pre-activation accessor (z = W*x + b)
+    Eigen::VectorXf& getZ() { return z; }
+    const Eigen::VectorXf& getZ() const { return z; }
 
     Eigen::VectorXf& getLastInput() { return lastInput; }
     const Eigen::VectorXf& getLastInput() const { return lastInput; }
@@ -60,7 +66,9 @@ public:
 
     Eigen::VectorXf forward(const Eigen::VectorXf& input);
 
-    Eigen::VectorXf backward(Eigen::VectorXf& delta);
-};
+    Eigen::VectorXf backwardOutput(const Eigen::VectorXf& gradOutput);
 
-#endif // LAYER_HPP
+    Eigen::VectorXf backward(Eigen::VectorXf& delta);
+
+    void updateWeights(float learningRate);
+};

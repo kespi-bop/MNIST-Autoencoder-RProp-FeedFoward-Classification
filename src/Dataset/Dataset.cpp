@@ -103,30 +103,19 @@ void Dataset::splitDataset() {
 
 
 void Dataset::verifyDimensions() {
-    // Check if the dataset contains enough examples
     if (fullTrainingSetImages.size() < fullTrainSetSize)
-    {
-        std::cerr << "Error: the dataset does not contain enough examples!\n";
-        return;
-    } 
-    
-    if (testSetImages.size() < testSetSize)
-    {
-        std::cerr << "Error: the dataset does not contain enough examples!\n";
-        return;
-    } 
+        throw std::runtime_error("Dataset error: not enough training images (expected " 
+            + std::to_string(fullTrainSetSize) + ", got " + std::to_string(fullTrainingSetImages.size()) + ")");
 
-    // Check if the dataset contains enough labels
+    if (testSetImages.size() < testSetSize)
+        throw std::runtime_error("Dataset error: not enough test images (expected " 
+            + std::to_string(testSetSize) + ", got " + std::to_string(testSetImages.size()) + ")");
+
     if (fullTrainingSetLabels.size() < fullTrainSetSize)
-    {
-        std::cerr << "Error: the dataset does not contain enough labels!\n";
-        return;
-    } 
+        throw std::runtime_error("Dataset error: not enough training labels (expected " 
+            + std::to_string(fullTrainSetSize) + ", got " + std::to_string(fullTrainingSetLabels.size()) + ")");
 
     if (testSetLabels.size() < testSetSize)
-    {
-        std::cerr << "Error: the dataset does not contain enough labels!\n";
-        return;
-    }
-    
+        throw std::runtime_error("Dataset error: not enough test labels (expected " 
+            + std::to_string(testSetSize) + ", got " + std::to_string(testSetLabels.size()) + ")");
 }

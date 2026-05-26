@@ -1,9 +1,22 @@
 CXX = g++
-CXXFLAGS = -fsanitize=address -I/usr/include/eigen3 \
--I Dataset -I MNISTReader -I printTest -I Layer \
--I Layer/Activation -I Layer/Activation/ActivationFunctions \
--I NeuralNetwork -I NeuralNetwork/Autoencoder \
--I Trainer -I Trainer/LossFunction -I Trainer/LossFunction/LossFunctions
+
+DEBUG_FLAGS = -g -fsanitize=address
+RELEASE_FLAGS = -O3 -march=native
+
+INCLUDES = -I/usr/include/eigen3 \
+-I Dataset \
+-I MNISTReader \
+-I printTest \
+-I Layer \
+-I Layer/Activation \
+-I Layer/Activation/ActivationFunctions \
+-I NeuralNetwork \
+-I NeuralNetwork/Autoencoder \
+-I Trainer \
+-I Trainer/LossFunction \
+-I Trainer/LossFunction/LossFunctions \
+
+CXXFLAGS = $(RELEASE_FLAGS) $(INCLUDES)
 
 TARGET = mnist_viewer
 
@@ -15,7 +28,7 @@ Layer/Layer.cpp \
 Layer/Activation/ActivationFunctions/ActivationFunctions.cpp \
 NeuralNetwork/Autoencoder/Autoencoder.cpp \
 Trainer/Trainer.cpp \
-Trainer/LossFunction/LossFunctions/LossFunctions.cpp
+Trainer/LossFunction/LossFunctions/LossFunctions.cpp \
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -26,6 +39,12 @@ $(TARGET): $(OBJS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+debug:
+	$(MAKE) CXXFLAGS="$(DEBUG_FLAGS) $(INCLUDES)"
+
+release:
+	$(MAKE) CXXFLAGS="$(RELEASE_FLAGS) $(INCLUDES)"
 
 clean:
 	rm -f $(OBJS) $(TARGET)
