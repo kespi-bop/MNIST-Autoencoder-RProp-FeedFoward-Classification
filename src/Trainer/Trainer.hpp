@@ -4,20 +4,32 @@
 #include "NeuralNetwork.hpp"
 #include "LossFunctions.hpp"
 
-class Trainer{
-    private:
-        int maxEpochs;
-        float learningRate;
-        NeuralNetwork& model;
-        LossFunction lossFunction;
-        const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>> trainingSet;
-        
-        void trainEpoch(int epoch);
+class Trainer {
+public:
+    Trainer(int maxEpochs, int patience, NeuralNetwork& model,
+            LossFunction lossFunction,
+            const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>>& trainingSet,
+            const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>>& validationSet)
+        : maxEpochs(maxEpochs), patience(patience), model(model),
+          lossFunction(lossFunction), trainingSet(trainingSet), validationSet(validationSet) {}
 
-    public:
-        Trainer(int maxEpochs, float learningRate, NeuralNetwork& model, LossFunction lossFunction, const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>>& trainingSet) : 
-            maxEpochs(maxEpochs), learningRate(learningRate), model(model), lossFunction(lossFunction), trainingSet(trainingSet) {};
-        void train();
+    void train();
+
+private:
+    int          maxEpochs;
+    int          patience;
+    NeuralNetwork& model;
+    LossFunction   lossFunction;
+    const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>> trainingSet;
+    const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>> validationSet;
+
+    float computeValidationLoss();
+    float runTrainingEpoch();
+
+    static void appendLayerSnapshot(
+        std::vector<Eigen::MatrixXf>& weightHistory,
+        std::vector<Eigen::VectorXf>& biasHistory,
+        const std::vector<Layer>& layers);
 };
 
 #endif // TRAINER_HPP

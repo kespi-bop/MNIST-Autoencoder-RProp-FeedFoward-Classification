@@ -1,74 +1,67 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <vector>
-#include <stdexcept>
 #include "Activation.hpp"
 
 class Layer {
 private:
-    Eigen::MatrixXf weight;
-    Eigen::VectorXf bias;
+    Eigen::MatrixXf weights;
+    Eigen::VectorXf biases;
 
-    Eigen::MatrixXf d_weight;       // gradient accumulator for weights
-    Eigen::VectorXf d_bias;         // gradient accumulator for biases
+    Eigen::MatrixXf weightGradients;      // accumulated gradient for weights
+    Eigen::VectorXf biasGradients;        // accumulated gradient for biases
 
-    Eigen::MatrixXf prev_d_weight;  // previous epoch gradient (for RProp)
-    Eigen::VectorXf prev_d_bias;
+    Eigen::MatrixXf prevWeightGradients;  // previous epoch gradients (RProp)
+    Eigen::VectorXf prevBiasGradients;
 
-    Eigen::MatrixXf delta_weight;   // RProp step size per weight
-    Eigen::VectorXf delta_bias;     // RProp step size per bias
+    Eigen::MatrixXf rpropWeightSteps;     // per-weight RProp step size
+    Eigen::VectorXf rpropBiasSteps;       // per-bias RProp step size
 
-    Eigen::VectorXf lastInput;
-    Eigen::VectorXf a;
-    Eigen::VectorXf z;
+    Eigen::VectorXf cachedInput;          // saved during forward pass for backprop
+    Eigen::VectorXf preActivation;        // a = W*x + b
+    Eigen::VectorXf postActivation;       // z = activation(a)
 
-    size_t weightRows;
-    size_t weightCols;
-    size_t biasSize;
+    Activation activationType;
 
-    Activation activation;
+    // Shared core of backward passes: accumulates gradients and propagates upstream
+    Eigen::VectorXf accumulateAndPropagate(const Eigen::VectorXf& gradient);
+
+    // Applies RProp update rule to a single scalar parameter
+    void applyRpropUpdate(float& param, float& grad, float& prevGrad, float& stepSize);
 
 public:
+    Layer(size_t outputSize, size_t weightRows, size_t inputSize, Activation activationFunction);
 
-    // Constructor that allocates space for weights, biases, and assigns the activation function
-    Layer(size_t biasSize, size_t weightRows, size_t weightCols, Activation activationFunction);
+    Eigen::MatrixXf& W() { return weights; }
+    const Eigen::MatrixXf& W() const { return weights; }
 
-    // Weight matrix accessor
-    Eigen::MatrixXf& W() { return weight; }
-    const Eigen::MatrixXf& W() const { return weight; }
+    Eigen::VectorXf& b() { return biases; }
+    const Eigen::VectorXf& b() const { return biases; }
 
-    // Bias vector accessor
-    Eigen::VectorXf& b() { return bias; }
-    const Eigen::VectorXf& b() const { return bias; }
+    Eigen::MatrixXf& dW() { return weightGradients; }
+    const Eigen::MatrixXf& dW() const { return weightGradients; }
 
-    // Weight gradient accessor
-    Eigen::MatrixXf& dW() { return d_weight; }
-    const Eigen::MatrixXf& dW() const { return d_weight; }
+    Eigen::VectorXf& db() { return biasGradients; }
+    const Eigen::VectorXf& db() const { return biasGradients; }
 
-    // Bias gradient accessor
-    Eigen::VectorXf& db() { return d_bias; }
-    const Eigen::VectorXf& db() const { return d_bias; }
+    Eigen::VectorXf& getPreActivation() { return preActivation; }
+    const Eigen::VectorXf& getPreActivation() const { return preActivation; }
 
-    // Pre-activation accessor (a = W*x + b)
-    Eigen::VectorXf& getA() { return a; }
-    const Eigen::VectorXf& getA() const { return a; }
+    Eigen::VectorXf& getPostActivation() { return postActivation; }
+    const Eigen::VectorXf& getPostActivation() const { return postActivation; }
 
-    // Pre-activation accessor (z = W*x + b)
-    Eigen::VectorXf& getZ() { return z; }
-    const Eigen::VectorXf& getZ() const { return z; }
+    Eigen::VectorXf& getCachedInput() { return cachedInput; }
+    const Eigen::VectorXf& getCachedInput() const { return cachedInput; }
 
-    Eigen::VectorXf& getLastInput() { return lastInput; }
-    const Eigen::VectorXf& getLastInput() const { return lastInput; }
-
-    // Activation function accessor
-    Activation getActivation() const { return activation; }
+    Activation getActivationType() const { return activationType; }
 
     Eigen::VectorXf forward(const Eigen::VectorXf& input);
 
-    Eigen::VectorXf backwardOutput(const Eigen::VectorXf& gradOutput);
+    // Backward pass for the output layer (loss gradient flows directly, no activation derivative)
+    Eigen::VectorXf backwardOutputLayer(const Eigen::VectorXf& lossGradient);
 
-    Eigen::VectorXf backward(Eigen::VectorXf& delta);
+    // Backward pass for hidden layers (applies activation derivative before propagating)
+    Eigen::VectorXf backward(Eigen::VectorXf& incomingGradient);
 
-    void updateWeights(float learningRate);
+    void updateWeightsRPROP(unsigned int trainingSetSize);
 };
