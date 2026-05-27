@@ -25,6 +25,7 @@ private:
 
     float computeValidationLoss();
     float runTrainingEpoch();
+    float computeReconstructionError();
 
     static void appendLayerSnapshot(
         std::vector<Eigen::MatrixXf>& weightHistory,

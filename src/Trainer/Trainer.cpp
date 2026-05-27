@@ -12,6 +12,17 @@ void Trainer::appendLayerSnapshot(
     }
 }
 
+float Trainer::computeReconstructionError() {
+    float totalError = 0.0f;
+
+    for (const auto& [input, _] : validationSet) {
+        const Eigen::VectorXf output = model.forward(input);
+        totalError += (output - input).squaredNorm() / input.size();
+    }
+
+    return totalError / validationSet.size();
+}
+
 float Trainer::computeValidationLoss() {
     float totalLoss = 0.0f;
     for (const auto& [target, _] : validationSet) {
@@ -73,7 +84,12 @@ void Trainer::train() {
         layers[i].W() = bestWeights[i];
         layers[i].b() = bestBiases[i];
     }
+    
 
     std::cout << "Training finished! Best Epoch: " << bestEpoch
               << "  Best Validation Loss: " << bestValidationLoss << "\n";
+
+    float reconstructionError = computeReconstructionError();
+
+    std::cout << "Reconstruction Error: " << reconstructionError << "\n";
 }

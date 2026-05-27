@@ -9,7 +9,7 @@ int main() {
     const auto& validationSet = dataset.getValidationSet();
 
     Autoencoder autoencoder(trainingSet[0].first.size(), 25);
-    Trainer trainer(1000, 10, autoencoder, LossFunction::BinaryCrossEntropy, trainingSet, validationSet);
+    Trainer trainer(100, 10, autoencoder, LossFunction::BinaryCrossEntropy, trainingSet, validationSet);
     trainer.train();
 
     return 0;
