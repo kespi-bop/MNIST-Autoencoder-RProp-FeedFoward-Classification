@@ -18,9 +18,10 @@ Eigen::VectorXf ActivationFunctions::apply(Activation act, const Eigen::VectorXf
             return x;
 
         case Activation::Softmax: {
-            Eigen::ArrayXf shifted = x.array() - x.maxCoeff();
-            Eigen::ArrayXf expValues = shifted.exp();
-            return (expValues / expValues.sum()).matrix();
+            float maxVal = x.maxCoeff();
+            Eigen::VectorXf expZ = (x.array() - maxVal).exp();
+            float sumExp = expZ.sum();
+            return expZ / sumExp;
         }
     }
 

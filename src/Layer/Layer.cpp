@@ -63,7 +63,7 @@ Eigen::VectorXf Layer::backwardOutputLayer(const Eigen::VectorXf& lossGradient) 
 
 Eigen::VectorXf Layer::backward(Eigen::VectorXf& incomingGradient) {
     const Eigen::VectorXf localGradient = incomingGradient.cwiseProduct(
-        ActivationFunctions::derivative(activationType, preActivation));
+        ActivationFunctions::derivative(activationType, postActivation));
     return accumulateAndPropagate(localGradient);
 }
 

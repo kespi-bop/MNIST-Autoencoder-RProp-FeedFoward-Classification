@@ -12,6 +12,7 @@ INCLUDES = -I/usr/include/eigen3 \
 -I Layer/Activation/ActivationFunctions \
 -I NeuralNetwork \
 -I NeuralNetwork/Autoencoder \
+-I NeuralNetwork/FeedForward \
 -I Trainer \
 -I Trainer/LossFunction \
 -I Trainer/LossFunction/LossFunctions \
@@ -27,6 +28,7 @@ printTest/printTest.cpp \
 Layer/Layer.cpp \
 Layer/Activation/ActivationFunctions/ActivationFunctions.cpp \
 NeuralNetwork/Autoencoder/Autoencoder.cpp \
+NeuralNetwork/FeedForward/FeedForward.cpp \
 Trainer/Trainer.cpp \
 Trainer/LossFunction/LossFunctions/LossFunctions.cpp \
 

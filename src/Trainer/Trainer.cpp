@@ -23,10 +23,26 @@ float Trainer::computeReconstructionError() {
     return totalError / validationSet.size();
 }
 
+float Trainer::computeAccuracy(const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>>& testSet) {
+    int correct = 0;
+    for (const auto& [input, target] : testSet)
+    {
+        Eigen::VectorXf output = model.forward(input);
+        int predicted = std::distance(output.data(), std::max_element(output.data(), output.data() + 10));
+        int actual = std::distance(target.data(), std::max_element(target.data(), target.data() + 10));
+        if (predicted == actual)
+        {
+            ++correct;
+        }
+    }
+    float accuracy = static_cast<float>(correct) / testSet.size() * 100.0f;
+    return accuracy;
+}
+
 float Trainer::computeValidationLoss() {
     float totalLoss = 0.0f;
-    for (const auto& [target, _] : validationSet) {
-        const Eigen::VectorXf output  = model.forward(target);
+    for (const auto& [input, target] : validationSet) {
+        const Eigen::VectorXf output  = model.forward(input);
         const Eigen::VectorXf lossVec = LossFunctions::apply(lossFunction, output, target);
         totalLoss -= lossVec.sum() / static_cast<float>(target.size());
     }
@@ -35,8 +51,8 @@ float Trainer::computeValidationLoss() {
 
 float Trainer::runTrainingEpoch() {
     float totalLoss = 0.0f;
-    for (const auto& [target, _] : trainingSet) {
-        const Eigen::VectorXf output       = model.forward(target);
+    for (const auto& [input, target] : trainingSet) {
+        const Eigen::VectorXf output       = model.forward(input);
         Eigen::VectorXf       lossGradient = LossFunctions::derivative(lossFunction, output, target);
         const Eigen::VectorXf lossVec      = LossFunctions::apply(lossFunction, output, target);
 
@@ -51,7 +67,7 @@ void Trainer::train() {
     int   bestEpoch               = 0;
     int   epochsWithoutImprovement = 0;
 
-    std::vector<Layer>           layers = model.getLayers();
+    std::vector<Layer>&          layers = model.getLayers();
     std::vector<Eigen::MatrixXf> bestWeights;
     std::vector<Eigen::VectorXf> bestBiases;
     appendLayerSnapshot(bestWeights, bestBiases, layers);
@@ -69,6 +85,8 @@ void Trainer::train() {
             bestValidationLoss       = validationLoss;
             bestEpoch                = epoch;
             epochsWithoutImprovement = 0;
+            bestWeights.clear();
+            bestBiases.clear();
             appendLayerSnapshot(bestWeights, bestBiases, layers);
         } else {
             ++epochsWithoutImprovement;
@@ -85,11 +103,6 @@ void Trainer::train() {
         layers[i].b() = bestBiases[i];
     }
     
-
     std::cout << "Training finished! Best Epoch: " << bestEpoch
               << "  Best Validation Loss: " << bestValidationLoss << "\n";
-
-    float reconstructionError = computeReconstructionError();
-
-    std::cout << "Reconstruction Error: " << reconstructionError << "\n";
 }

@@ -11,6 +11,7 @@ g++ -O3 -march=native \
     -I Layer/Activation/ActivationFunctions \
     -I NeuralNetwork \
     -I NeuralNetwork/Autoencoder \
+    -I NeuralNetwork/FeedForward \
     -I Trainer \
     -I Trainer/LossFunction \
     -I Trainer/LossFunction/LossFunctions \
@@ -21,5 +22,6 @@ g++ -O3 -march=native \
     Layer/Layer.cpp \
     Layer/Activation/ActivationFunctions/ActivationFunctions.cpp \
     NeuralNetwork/Autoencoder/Autoencoder.cpp \
+    NeuralNetwork/FeedForward/FeedForward.cpp \
     Trainer/Trainer.cpp \
     Trainer/LossFunction/LossFunctions/LossFunctions.cpp \

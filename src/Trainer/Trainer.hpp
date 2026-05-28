@@ -14,6 +14,8 @@ public:
           lossFunction(lossFunction), trainingSet(trainingSet), validationSet(validationSet) {}
 
     void train();
+    float computeReconstructionError();
+    float computeAccuracy(const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>>& testSet);
 
 private:
     int          maxEpochs;
@@ -25,7 +27,6 @@ private:
 
     float computeValidationLoss();
     float runTrainingEpoch();
-    float computeReconstructionError();
 
     static void appendLayerSnapshot(
         std::vector<Eigen::MatrixXf>& weightHistory,

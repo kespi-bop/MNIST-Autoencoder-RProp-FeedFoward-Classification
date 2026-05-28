@@ -4,5 +4,6 @@
 
 enum class LossFunction {
     MSE,
-    BinaryCrossEntropy
+    BinaryCrossEntropy,
+    CategoricalCrossEntropy
 };

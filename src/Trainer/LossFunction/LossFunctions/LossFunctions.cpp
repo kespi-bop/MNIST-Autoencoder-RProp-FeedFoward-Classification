@@ -13,6 +13,12 @@ Eigen::VectorXf LossFunctions::apply(LossFunction lossFunction, const Eigen::Vec
             return y_true.cwiseProduct(clippedPrediction.array().log().matrix()) +
                                       (1 - y_true.array()).matrix().cwiseProduct((1 - clippedPrediction.array()).log().matrix());
         }
+
+        case LossFunction::CategoricalCrossEntropy: {
+            Eigen::VectorXf clippedPrediction = y_predicted.cwiseMax(1e-7).cwiseMin(1 - 1e-7);
+            // CCE: -sum(y_true * log(y_predicted)), returned per-element for consistency
+            return y_true.cwiseProduct(clippedPrediction.array().log().matrix());
+        }
     }
 
     return Eigen::VectorXf::Zero(y_true.size());
@@ -25,6 +31,10 @@ Eigen::VectorXf LossFunctions::derivative(LossFunction lossFunction, const Eigen
             return (2 * (y_predicted - y_true)).matrix();
 
         case LossFunction::BinaryCrossEntropy: {
+            return (y_predicted - y_true);
+        }
+        case LossFunction::CategoricalCrossEntropy: {
+            // For Softmax + CCE, the gradient simplifies to (predicted - target)
             return (y_predicted - y_true);
         }
     }

@@ -10,6 +10,8 @@ public:
     Eigen::VectorXf forward(const Eigen::VectorXf& input) override;
     void backward(Eigen::VectorXf& lossGradient) override;
     void updateWeightsRPROP(unsigned int trainingSetSize) override;
+    
+    const Eigen::VectorXf getEncoding(const Eigen::VectorXf& input) { return encode(input); };
 
 private:
     Eigen::VectorXf encode(const Eigen::VectorXf& input);
