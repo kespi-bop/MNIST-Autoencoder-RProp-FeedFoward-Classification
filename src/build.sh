@@ -5,7 +5,6 @@ g++ -O3 -march=native \
     -I /usr/include/eigen3 \
     -I Dataset \
     -I MNISTReader \
-    -I printTest \
     -I Layer \
     -I Layer/Activation \
     -I Layer/Activation/ActivationFunctions \
@@ -15,8 +14,10 @@ g++ -O3 -march=native \
     -I Trainer \
     -I Trainer/LossFunction \
     -I Trainer/LossFunction/LossFunctions \
+    -I ../Launcher/ModelPaths \
+    -I ../Launcher/TrainingPipeline \
+    -I ../Launcher/WeightSerializer \
     main.cpp \
-    printTest/printTest.cpp \
     Dataset/Dataset.cpp \
     MNISTReader/MNISTReader.cpp \
     Layer/Layer.cpp \
@@ -25,3 +26,5 @@ g++ -O3 -march=native \
     NeuralNetwork/FeedForward/FeedForward.cpp \
     Trainer/Trainer.cpp \
     Trainer/LossFunction/LossFunctions/LossFunctions.cpp \
+    ../Launcher/TrainingPipeline/TrainingPipeline.cpp \
+    ../Launcher/WeightSerializer/WeightSerializer.cpp 

@@ -1,0 +1,194 @@
+classDiagram
+
+    %% ── Data loading ────────────────────────────────────────────────────────
+
+    class MNISTReader {
+        +readImages(filePath: string) static vector~vector~uint8_t~~
+        +readLabels(filePath: string) static vector~uint8_t~
+        -reverseInt(i: uint32_t) static uint32_t
+    }
+
+    class Dataset {
+        -fullTrainingSetImages: vector~VectorXf~
+        -fullTrainingSetLabels: vector~VectorXf~
+        -testSetImages: vector~VectorXf~
+        -testSetLabels: vector~VectorXf~
+        -trainingSet: vector~pair~VectorXf,VectorXf~~
+        -validationSet: vector~pair~VectorXf,VectorXf~~
+        -testSet: vector~pair~VectorXf,VectorXf~~
+        -normalizeImages(src: vector~vector~uint8_t~~) vector~VectorXf~
+        -oneHotEncodeLabels(src: vector~uint8_t~) vector~VectorXf~
+        -splitDataset() void
+        -verifyDimensions() void
+        +getTrainingSet() const vector~pair~VectorXf,VectorXf~~&
+        +getValidationSet() const vector~pair~VectorXf,VectorXf~~&
+        +getTestSet() const vector~pair~VectorXf,VectorXf~~&
+    }
+
+    %% ── Activation (enum + namespace) ───────────────────────────────────────
+
+    class Activation {
+        <<enumeration>>
+        ReLU
+        Sigmoid
+        Tanh
+        Linear
+        Softmax
+    }
+
+    class ActivationFunctions {
+        <<namespace>>
+        +apply(act: Activation, x: VectorXf) VectorXf
+        +derivative(act: Activation, x: VectorXf) VectorXf
+    }
+
+    %% ── Loss (enum + namespace) ─────────────────────────────────────────────
+
+    class LossFunction {
+        <<enumeration>>
+        MSE
+        BinaryCrossEntropy
+        CategoricalCrossEntropy
+    }
+
+    class LossFunctions {
+        <<namespace>>
+        +apply(lf: LossFunction, yPred: VectorXf, yTrue: VectorXf) VectorXf
+        +derivative(lf: LossFunction, yPred: VectorXf, yTrue: VectorXf) VectorXf
+    }
+
+    %% ── Neural Network hierarchy ─────────────────────────────────────────────
+
+    class Layer {
+        -weights: MatrixXf
+        -biases: VectorXf
+        -weightGradients: MatrixXf
+        -biasGradients: VectorXf
+        -prevWeightGradients: MatrixXf
+        -prevBiasGradients: VectorXf
+        -rpropWeightSteps: MatrixXf
+        -rpropBiasSteps: VectorXf
+        -cachedInput: VectorXf
+        -preActivation: VectorXf
+        -postActivation: VectorXf
+        -activationType: Activation
+        -accumulateAndPropagate(grad: VectorXf) VectorXf
+        -applyRpropUpdate(param float&, grad float&, prevGrad float&, step float&) void
+        +forward(input: VectorXf) VectorXf
+        +backwardOutputLayer(lossGrad: VectorXf) VectorXf
+        +backward(incomingGrad: VectorXf&) VectorXf
+        +updateWeightsRPROP(n: uint) void
+        +W() MatrixXf&
+        +b() VectorXf&
+        +dW() MatrixXf&
+        +db() VectorXf&
+    }
+
+    class NeuralNetwork {
+        <<abstract>>
+        #layers: vector~Layer~
+        +forward(input: VectorXf) VectorXf*
+        +backward(grad: VectorXf&) void*
+        +updateWeightsRPROP(n: uint) void*
+        +getLayers() vector~Layer~&
+    }
+
+    class Autoencoder {
+        +Autoencoder(inputSize: size_t, hiddenSize: size_t)
+        +forward(input: VectorXf) VectorXf
+        +backward(grad: VectorXf&) void
+        +updateWeightsRPROP(n: uint) void
+        +getEncoding(input: VectorXf) VectorXf
+        -encode(input: VectorXf) VectorXf
+        -decode(encoded: VectorXf) VectorXf
+    }
+
+    class FeedForward {
+        +FeedForward(inputSize: size_t, hiddenSize: size_t, outputSize: size_t)
+        +forward(input: VectorXf) VectorXf
+        +backward(grad: VectorXf&) void
+        +updateWeightsRPROP(n: uint) void
+    }
+
+    %% ── Training ─────────────────────────────────────────────────────────────
+
+    class Trainer {
+        -maxEpochs: int
+        -patience: int
+        -model: NeuralNetwork&
+        -lossFunction: LossFunction
+        -trainingSet: vector~pair~VectorXf,VectorXf~~
+        -validationSet: vector~pair~VectorXf,VectorXf~~
+        +train() void
+        -runTrainingEpoch() float
+        -computeValidationLoss() float
+        -appendLayerSnapshot(...) static void
+    }
+
+    %% ── NEW: Persistence utilities ───────────────────────────────────────────
+
+    class WeightSerializer {
+        <<namespace>>
+        +save(net: NeuralNetwork&, path: string) void
+        +load(net: NeuralNetwork&, path: string) void
+        +fileExistsAndNotEmpty(path: string) bool
+    }
+
+    class ModelPaths {
+        <<namespace>>
+        +autoencoderWeights(h: int) string
+        +feedforwardWeights(h: int) string
+        +testResults(h: int) string
+    }
+
+    %% ── NEW: High-level pipeline ──────────────────────────────────────────────
+
+    class TrainingPipeline {
+        <<namespace>>
+        +trainAutoencoder(h: int, dataset: Dataset&) void
+        +trainFeedforward(h: int, dataset: Dataset&) void
+        +trainFull(h: int, dataset: Dataset&) void
+        +runTest(h: int, dataset: Dataset&) void
+    }
+
+    %% ── NEW: Entry point ─────────────────────────────────────────────────────
+
+    class main {
+        <<entrypoint>>
+        -selectH() int
+        -showMenu() int
+        -readInt(prompt: string) int
+        -runSingle(fn: PipelineFn, h: int, dataset: Dataset&) void
+        -runParallel(fn: PipelineFn, dataset: Dataset&) void
+        -dispatch(menuChoice: int, hChoice: int, dataset: Dataset&) void
+    }
+
+    %% ── Relationships ────────────────────────────────────────────────────────
+
+    Dataset ..> MNISTReader            : "popola da"
+
+    NeuralNetwork *-- Layer            : "composizione 1..*"
+    NeuralNetwork <|-- Autoencoder     : "eredita"
+    NeuralNetwork <|-- FeedForward     : "eredita"
+
+    Layer ..> ActivationFunctions      : "usa"
+    Layer ..> Activation               : "usa (enum)"
+
+    Trainer o-- NeuralNetwork          : "addestra (ref)"
+    Trainer ..> LossFunctions          : "usa"
+    Trainer ..> LossFunction           : "usa (enum)"
+
+    WeightSerializer ..> NeuralNetwork : "serializza"
+    WeightSerializer ..> Layer         : "accede a W() b()"
+    ModelPaths ..> WeightSerializer    : "fornisce path a"
+
+    TrainingPipeline ..> Trainer       : "crea & usa"
+    TrainingPipeline ..> Autoencoder   : "crea"
+    TrainingPipeline ..> FeedForward   : "crea"
+    TrainingPipeline ..> WeightSerializer : "save / load"
+    TrainingPipeline ..> ModelPaths    : "richiede path"
+    TrainingPipeline ..> Dataset       : "legge (const&)"
+
+    main ..> TrainingPipeline          : "dispatch a"
+    main ..> Dataset                   : "crea & condivide"
+    main ..> ModelPaths                : "usa"

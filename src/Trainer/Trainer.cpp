@@ -12,33 +12,6 @@ void Trainer::appendLayerSnapshot(
     }
 }
 
-float Trainer::computeReconstructionError() {
-    float totalError = 0.0f;
-
-    for (const auto& [input, _] : validationSet) {
-        const Eigen::VectorXf output = model.forward(input);
-        totalError += (output - input).squaredNorm() / input.size();
-    }
-
-    return totalError / validationSet.size();
-}
-
-float Trainer::computeAccuracy(const std::vector<std::pair<Eigen::VectorXf, Eigen::VectorXf>>& testSet) {
-    int correct = 0;
-    for (const auto& [input, target] : testSet)
-    {
-        Eigen::VectorXf output = model.forward(input);
-        int predicted = std::distance(output.data(), std::max_element(output.data(), output.data() + 10));
-        int actual = std::distance(target.data(), std::max_element(target.data(), target.data() + 10));
-        if (predicted == actual)
-        {
-            ++correct;
-        }
-    }
-    float accuracy = static_cast<float>(correct) / testSet.size() * 100.0f;
-    return accuracy;
-}
-
 float Trainer::computeValidationLoss() {
     float totalLoss = 0.0f;
     for (const auto& [input, target] : validationSet) {

@@ -5,7 +5,11 @@
 Layer::Layer(size_t outputSize, size_t weightRows, size_t inputSize, Activation activationFunction)
     : activationType(activationFunction)
 {
-    static std::mt19937 rng(std::random_device{}());
+    // thread_local (instead of plain static) ensures each OpenMP thread gets
+    // its own independently-seeded RNG, preventing data races and guaranteeing
+    // reproducible per-thread weight initialisation.
+    thread_local std::mt19937 rng(std::random_device{}());
+
     const float xavierBound = std::sqrt(6.0f / (weightRows + inputSize));
     std::uniform_real_distribution<float> dist(-xavierBound, xavierBound);
 

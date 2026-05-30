@@ -17,10 +17,17 @@ The latent features extracted by these encoders ($E_h$) serve as inputs for a ne
 ## 📊 Learning Dynamics Analysis
 The project evaluates performance across five different latent space dimensions:
 
-| Model | Latent Size ($m_h$) | Epochs to Converge | Test Accuracy |
-| :--- | :---: | :---: | :---: |
-| Encoder 1 | 25 | - | - |
-| Encoder 2 | 50 | - | - |
-| Encoder 3 | 75 | - | - |
-| Encoder 4 | 100 | - | - |
-| Encoder 5 | 125 | - | - |
+| Model | Latent Size ($m_h$) | Epochs to Converge | Reconstruction Error| Test Accuracy |
+| :--- | :---: | :---: | :---: | :---: |
+| Encoder 1 | 25 | 100 | 0.0351417 | 88.21% |
+| Encoder 2 | 50 | 100 | 0.0276789 | 93.32% |
+| Encoder 3 | 75 | 100 | 0.0203881 | 95.69% |
+| Encoder 4 | 100 | 100 | 0.0163986 | 95.31% |
+| Encoder 5 | 125 | 100 | 0.0146692 | 96.34% |
+
+## 🚀 Compilation and Setup
+To compile the project, navigate to the `src` directory containing the `Makefile` and run the `make` command:
+
+```bash
+cd src
+make

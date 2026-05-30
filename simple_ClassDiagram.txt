@@ -1,0 +1,129 @@
+classDiagram
+
+
+    %% ── Activation (enum + namespace) ───────────────────────────────────────
+
+    class Activation {
+        <<enumeration>>
+        ReLU
+        Sigmoid
+        Linear
+        Softmax
+    }
+
+    class ActivationFunctions {
+        <<namespace>>
+        +apply(act: Activation, x: VectorXf) VectorXf
+        +derivative(act: Activation, x: VectorXf) VectorXf
+    }
+
+    %% ── Loss (enum + namespace) ─────────────────────────────────────────────
+
+    class LossFunction {
+        <<enumeration>>
+        MSE
+        BinaryCrossEntropy
+        CategoricalCrossEntropy
+    }
+
+    class LossFunctions {
+        <<namespace>>
+        +apply(lf: LossFunction, yPred: VectorXf, yTrue: VectorXf) VectorXf
+        +derivative(lf: LossFunction, yPred: VectorXf, yTrue: VectorXf) VectorXf
+    }
+
+    %% ── Neural Network hierarchy ─────────────────────────────────────────────
+
+    class Layer {
+        -weights: MatrixXf
+        -biases: VectorXf
+        -weightGradients: MatrixXf
+        -biasGradients: VectorXf
+        -prevWeightGradients: MatrixXf
+        -prevBiasGradients: VectorXf
+        -rpropWeightSteps: MatrixXf
+        -rpropBiasSteps: VectorXf
+        -cachedInput: VectorXf
+        -preActivation: VectorXf
+        -postActivation: VectorXf
+        -activationType: Activation
+        -accumulateAndPropagate(grad: VectorXf) VectorXf
+        -applyRpropUpdate(param float&, grad float&, prevGrad float&, step float&) void
+        +forward(input: VectorXf) VectorXf
+        +backwardOutputLayer(lossGrad: VectorXf) VectorXf
+        +backward(incomingGrad: VectorXf&) VectorXf
+        +updateWeightsRPROP(n: uint) void
+        +W() MatrixXf&
+        +b() VectorXf&
+        +dW() MatrixXf&
+        +db() VectorXf&
+    }
+
+    class NeuralNetwork {
+        <<abstract>>
+        #layers: vector~Layer~
+        +forward(input: VectorXf) VectorXf*
+        +backward(grad: VectorXf&) void*
+        +updateWeightsRPROP(n: uint) void*
+        +getLayers() vector~Layer~&
+    }
+
+    class Autoencoder {
+        +Autoencoder(inputSize: size_t, hiddenSize: size_t)
+        +forward(input: VectorXf) VectorXf
+        +backward(grad: VectorXf&) void
+        +updateWeightsRPROP(n: uint) void
+        +getEncoding(input: VectorXf) VectorXf
+        -encode(input: VectorXf) VectorXf
+        -decode(encoded: VectorXf) VectorXf
+    }
+
+    class FeedForward {
+        +FeedForward(inputSize: size_t, hiddenSize: size_t, outputSize: size_t)
+        +forward(input: VectorXf) VectorXf
+        +backward(grad: VectorXf&) void
+        +updateWeightsRPROP(n: uint) void
+    }
+
+    %% ── Training ─────────────────────────────────────────────────────────────
+
+    class Trainer {
+        -maxEpochs: int
+        -patience: int
+        -model: NeuralNetwork&
+        -lossFunction: LossFunction
+        -trainingSet: vector~pair~VectorXf,VectorXf~~
+        -validationSet: vector~pair~VectorXf,VectorXf~~
+        +train() void
+        -runTrainingEpoch() float
+        -computeValidationLoss() float
+        -appendLayerSnapshot(...) static void
+    }
+
+    
+
+    %% ── NEW: Entry point ─────────────────────────────────────────────────────
+
+    class main {
+        <<entrypoint>>
+        -selectH() int
+        -showMenu() int
+        -readInt(prompt: string) int
+        -runSingle(fn: PipelineFn, h: int, dataset: Dataset&) void
+        -runParallel(fn: PipelineFn, dataset: Dataset&) void
+        -dispatch(menuChoice: int, hChoice: int, dataset: Dataset&) void
+    }
+
+    %% ── Relationships ────────────────────────────────────────────────────────
+
+
+    NeuralNetwork *-- Layer            : "composizione 1..*"
+    NeuralNetwork <|-- Autoencoder     : "eredita"
+    NeuralNetwork <|-- FeedForward     : "eredita"
+
+    Layer ..> ActivationFunctions      : "usa"
+    Layer ..> Activation               : "usa (enum)"
+
+    Trainer o-- NeuralNetwork          : "addestra (ref)"
+    Trainer ..> LossFunctions          : "usa"
+    Trainer ..> LossFunction           : "usa (enum)"

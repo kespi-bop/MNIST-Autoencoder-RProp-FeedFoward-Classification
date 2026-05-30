@@ -1,0 +1,3 @@
+h = 100
+Reconstruction Error (Test): 0.0163986
+Classification Accuracy: 95.31%

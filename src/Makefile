@@ -1,12 +1,11 @@
 CXX = g++
 
 DEBUG_FLAGS = -g -fsanitize=address
-RELEASE_FLAGS = -O3 -march=native
+RELEASE_FLAGS = -fopenmp -O3 -march=native
 
 INCLUDES = -I/usr/include/eigen3 \
 -I Dataset \
 -I MNISTReader \
--I printTest \
 -I Layer \
 -I Layer/Activation \
 -I Layer/Activation/ActivationFunctions \
@@ -16,21 +15,26 @@ INCLUDES = -I/usr/include/eigen3 \
 -I Trainer \
 -I Trainer/LossFunction \
 -I Trainer/LossFunction/LossFunctions \
+-I ../Launcher/ModelPaths \
+-I ../Launcher/TrainingPipeline \
+-I ../Launcher/WeightSerializer
 
 CXXFLAGS = $(RELEASE_FLAGS) $(INCLUDES)
 
-TARGET = mnist_viewer
+TARGET = main
 
 SRCS = main.cpp \
 Dataset/Dataset.cpp \
 MNISTReader/MNISTReader.cpp \
-printTest/printTest.cpp \
 Layer/Layer.cpp \
 Layer/Activation/ActivationFunctions/ActivationFunctions.cpp \
 NeuralNetwork/Autoencoder/Autoencoder.cpp \
 NeuralNetwork/FeedForward/FeedForward.cpp \
 Trainer/Trainer.cpp \
 Trainer/LossFunction/LossFunctions/LossFunctions.cpp \
+../Launcher/TrainingPipeline/TrainingPipeline.cpp \
+../Launcher/WeightSerializer/WeightSerializer.cpp
+
 
 OBJS = $(SRCS:.cpp=.o)
 
